@@ -265,6 +265,7 @@ def create_dataset():
                 # why is this requireing a relitive path while using ^
                 image_rel = os.path.relpath(IMAGE_FOLDER)
                 name = str(f"./{image_rel}/{'_'.join(elems[9:])}")
+                # "file_path": "./..\\res\\dataset\\images/0006.jpg",
                 b = sharpness(name)
                 print(name, "sharpness=", b)
                 image_id = int(elems[0])
@@ -281,8 +282,8 @@ def create_dataset():
                     c2w[2, :] *= -1  # flip whole world upside down
 
                     up += c2w[0:3, 1]
-
-                frame = {"file_path": name, "sharpness": b, "transform_matrix": c2w}
+                image_name_from_json = os.path.join('.','images',name[-8:])
+                frame = {"file_path": image_name_from_json, "sharpness": b, "transform_matrix": c2w}
                 out["frames"].append(frame)
     nframes = len(out["frames"])
 
