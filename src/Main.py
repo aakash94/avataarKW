@@ -282,7 +282,7 @@ def create_dataset():
                     c2w[2, :] *= -1  # flip whole world upside down
 
                     up += c2w[0:3, 1]
-                image_name_from_json = os.path.join('.','images',name[-8:])
+                image_name_from_json = os.path.join('.', 'images', name[-8:])
                 frame = {"file_path": image_name_from_json, "sharpness": b, "transform_matrix": c2w}
                 out["frames"].append(frame)
     nframes = len(out["frames"])
