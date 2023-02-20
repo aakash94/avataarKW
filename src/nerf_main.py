@@ -471,7 +471,7 @@ def is_interactive() -> bool:
     return os.environ.get('WISP_HEADLESS') != '1'
 
 
-def main():
+def do_nerf():
     args, args_dict = parse_args()  # Obtain args by priority: cli args > config yaml > argparse defaults
     default_log_setup(args.log_level)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -496,6 +496,6 @@ def main():
 
 if __name__ == '__main__':
     print("Hello World")
-    main()
+    do_nerf()
     # https://github.com/NVIDIAGameWorks/kaolin-wisp/tree/main/app/nerf
     # python app/nerf/main_nerf.py --config app/nerf/configs/nerf_octree.yaml --dataset-path /path/to/lego

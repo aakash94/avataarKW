@@ -40,7 +40,7 @@ DATASET_PATH = os.path.join(RES_PATH, 'dataset')
 IMAGES_PATH = os.path.join(DATASET_PATH, 'images', '')
 JSON_PATH = os.path.join(DATASET_PATH, 'transforms.json')
 COLMAP_PATH = os.path.join(SRC_PATH, 'colmap_nocuda')
-SCALE_AABB = 16
+SCALE_AABB = 64
 if cuda.is_available():
     COLMAP_PATH = os.path.join(SRC_PATH, 'colmap_cuda')
 COLMAPBAT_PATH = os.path.join(COLMAP_PATH, 'COLMAP.bat')
