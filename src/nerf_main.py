@@ -1,13 +1,3 @@
-# Copyright (c) 2022, NVIDIA CORPORATION & AFFILIATES.  All rights reserved.
-#
-# NVIDIA CORPORATION & AFFILIATES and its licensors retain all intellectual property
-# and proprietary rights in and to this software, related documentation
-# and any modifications thereto.  Any use, reproduction, disclosure or
-# distribution of this software and related documentation without an express
-# license agreement from NVIDIA CORPORATION & AFFILIATES is strictly prohibited.
-
-
-import os
 import argparse
 import logging
 import numpy as np
@@ -22,16 +12,13 @@ from wisp.tracers import BaseTracer, PackedRFTracer
 from wisp.models.nefs import BaseNeuralField, NeuralRadianceField
 from wisp.models.pipeline import Pipeline
 from wisp.trainers import BaseTrainer, MultiviewTrainer
+from configuration import *
 
 
 def parse_args():
-    """Wisp mains define args per app.
-    Args are collected by priority: cli args > config yaml > argparse defaults
-    For convenience, args are divided into groups.
-    """
     parser = argparse.ArgumentParser(description='A script for training simple NeRF variants.',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--config', type=str,
+    parser.add_argument('--config', default=HASH_CONFIG_PATH, type=str,
                         help='Path to config file to replace defaults.')
     parser.add_argument('--profile', action='store_true',
                         help='Enable NVTX profiling')
@@ -45,7 +32,7 @@ def parse_args():
                            help='Use high-level profiling for the trainer.')
 
     data_group = parser.add_argument_group('dataset')
-    data_group.add_argument('--dataset-path', type=str,
+    data_group.add_argument('--dataset-path', default=DATASET_PATH, type=str,
                             help='Path to the dataset')
     data_group.add_argument('--dataset-num-workers', type=int, default=-1,
                             help='Number of workers for dataset preprocessing, if it supports multiprocessing. '
@@ -235,14 +222,6 @@ def parse_args():
 
 
 def load_dataset(args) -> MultiviewDataset:
-    """ Loads a multiview dataset comprising of pairs of images and calibrated cameras.
-    The types of supported datasets are defined by multiview_dataset_format:
-    'standard' - refers to the standard NeRF format popularized by Mildenhall et al. 2020,
-                 including additions to the metadata format added by Muller et al. 2022.
-    'rtmv' - refers to the dataset published by Tremblay et. al 2022,
-            "RTMV: A Ray-Traced Multi-View Synthetic Dataset for Novel View Synthesis".
-            This dataset includes depth information which allows for performance improving optimizations in some cases.
-    """
     transform = SampleRays(num_samples=args.num_rays_sampled_per_img)
     train_dataset = wisp.datasets.load_multiview_dataset(dataset_path=args.dataset_path,
                                                          split='train',
@@ -257,14 +236,6 @@ def load_dataset(args) -> MultiviewDataset:
 
 
 def load_grid(args, dataset: MultiviewDataset) -> BLASGrid:
-    """ Wisp's implementation of NeRF uses feature grids to improve the performance and quality (allowing therefore,
-    interactivity).
-    This function loads the feature grid to use within the neural pipeline.
-    Grid choices are interesting to explore, so we leave the exact backbone type configurable,
-    and show how grid instances may be explicitly constructed.
-    Grids choices, for example, are: OctreeGrid, TriplanarGrid, HashGrid, CodebookOctreeGrid
-    See corresponding grid constructors for each of their arg details.
-    """
     grid = None
 
     # Optimization: For octrees based grids, if dataset contains depth info, initialize only cells known to be occupied
@@ -356,10 +327,6 @@ def load_grid(args, dataset: MultiviewDataset) -> BLASGrid:
 
 
 def load_neural_field(args, dataset: MultiviewDataset) -> BaseNeuralField:
-    """ Creates a "Neural Field" instance which converts input coordinates to some output signal.
-    Here a NeuralRadianceField is created, which maps 3D coordinates (+ 2D view direction) -> RGB + density.
-    The NeuralRadianceField uses spatial feature grids internally for faster feature interpolation and raymarching.
-    """
     grid = load_grid(args=args, dataset=dataset)
     nef = NeuralRadianceField(
         grid=grid,
@@ -379,15 +346,6 @@ def load_neural_field(args, dataset: MultiviewDataset) -> BaseNeuralField:
 
 
 def load_tracer(args) -> BaseTracer:
-    """ Wisp "Tracers" are responsible for taking input rays, marching them through the neural field to render
-    an output RenderBuffer.
-    Wisp's implementation of NeRF uses the PackedRFTracer to trace the neural field:
-    - Packed: each ray yields a custom number of samples, which are therefore packed in a flat form within a tensor,
-     see: https://kaolin.readthedocs.io/en/latest/modules/kaolin.ops.batch.html#packed
-    - RF: Radiance Field
-    PackedRFTracer is employed within the training loop, and is responsible for making use of the neural field's
-    grid to generate samples and decode them to pixel values.
-    """
     tracer = PackedRFTracer(
         raymarch_type=args.raymarch_type,  # Chooses the ray-marching algorithm
         num_steps=args.num_steps,  # Number of steps depends on raymarch_type
@@ -397,9 +355,6 @@ def load_tracer(args) -> BaseTracer:
 
 
 def load_neural_pipeline(args, dataset, device) -> Pipeline:
-    """ In Wisp, a Pipeline comprises of a neural field + a tracer (the latter is optional in some cases).
-    Together, they form the complete pipeline required to render a neural primitive from input rays / coordinates.
-    """
     nef = load_neural_field(args=args, dataset=dataset)
     tracer = load_tracer(args=args)
     pipeline = Pipeline(nef=nef, tracer=tracer)
@@ -413,16 +368,6 @@ def load_neural_pipeline(args, dataset, device) -> Pipeline:
 
 
 def load_trainer(pipeline, train_dataset, validation_dataset, device, scene_state, args, args_dict) -> BaseTrainer:
-    """ Loads the NeRF trainer.
-    The trainer is responsible for managing the optimization life-cycles and can be operated in 2 modes:
-    - Headless, which will run the train() function until all training steps are exhausted.
-    - Interactive mode, which uses the gui. In this case, an OptimizationApp uses events to prompt the trainer to
-      take training steps, while also taking care to render output to users (see: iterate()).
-      In interactive mode, trainers can also share information with the app through the scene_state (WispState object).
-    """
-    # args.optimizer_type is the name of some optimizer class (from torch.optim or apex),
-    # Wisp's config_parser is able to pick this app's args with corresponding names to the optimizer constructor args.
-    # The actual construction of the optimizer instance happens within the trainer.
     optimizer_cls = config_parser.get_module(name=args.optimizer_type)
     optimizer_params = config_parser.get_args_for_function(args, optimizer_cls)
 
@@ -450,10 +395,6 @@ def load_trainer(pipeline, train_dataset, validation_dataset, device, scene_stat
 
 
 def load_app(args, scene_state, trainer):
-    """ Used only in interactive mode. Creates an interactive app, which employs a renderer which displays
-    the latest information from the trainer (see: OptimizationApp).
-    The OptimizationApp can be customized or further extend to support even more functionality.
-    """
     if not is_interactive():
         logging.info("Running headless. For the app, set $WISP_HEADLESS=0.")
         return None  # Interactive mode is disabled
@@ -467,7 +408,6 @@ def load_app(args, scene_state, trainer):
 
 
 def is_interactive() -> bool:
-    """ Returns True if interactive mode with gui is on, False is HEADLESS mode is forced """
     return os.environ.get('WISP_HEADLESS') != '1'
 
 
@@ -497,6 +437,3 @@ def do_nerf():
 if __name__ == '__main__':
     print("Hello World")
     do_nerf()
-    # https://github.com/NVIDIAGameWorks/kaolin-wisp/tree/main/app/nerf
-    # python app/nerf/main_nerf.py --config app/nerf/configs/nerf_octree.yaml --dataset-path /path/to/lego
-    # python3 app/nerf/main_nerf.py --config app/nerf/configs/nerf_hash.yaml --dataset-path D:/Workspace/akw/avataarKW/res/dataset

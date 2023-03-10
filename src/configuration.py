@@ -32,7 +32,6 @@ OCTREE_CONFIG_PATH = os.path.join(CONFIG_PATH, 'nerf_octree.yaml')
 TRIPLANAR_CONFIG_PATH = os.path.join(CONFIG_PATH, 'nerf_triplanar.yaml')
 COLMAPDB_DIR_PATH = os.path.join(RES_PATH, 'colmapdb', '')
 COLMAPDB_PATH = os.path.join(COLMAPDB_DIR_PATH, 'colmap.db')
-# COLMAPTEXT_PATH = os.path.join(RES_PATH, 'colmap_text','')
 TEXT_FOLDER_PATH = os.path.join(COLMAPDB_DIR_PATH, 'colmap_text', '')
 IN_VIDEO_PATH = os.path.join(RES_PATH, 'input.mp4')
 OUT_VIDEO_PATH = os.path.join(RES_PATH, 'output.mp4')
@@ -40,6 +39,7 @@ DATASET_PATH = os.path.join(RES_PATH, 'dataset')
 FBUFFERDUMP_PATH = os.path.join(RES_PATH, 'framebuffer_dump', '')  # , 'fbuff.dmp')
 IMAGES_PATH = os.path.join(DATASET_PATH, 'images', '')
 JSON_PATH = os.path.join(DATASET_PATH, 'transforms.json')
+RUNS_LOG_PATH = os.path.join(SRC_PATH, '_results', 'logs', 'runs', 'test-nerf')
 SCALE_AABB = 4
 COLMAP_PATH = os.path.join(SRC_PATH, 'colmap_nocuda')
 if cuda.is_available():
@@ -55,10 +55,3 @@ DATASET_WORKERS = 6
 
 if __name__ == '__main__':
     print("Welcome to Configuration File")
-    '''
-    python C:/Users/Thominator/Desktop/InstantNGP/scripts/colmap2nerf.py --video_in video.MOV --video_fps 2 --run_colmap --aabb_scale 16
-    --video_in video.MOV 
-    --video_fps 2 
-    --run_colmap 
-    --aabb_scale 16
-    '''
