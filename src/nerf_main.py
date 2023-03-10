@@ -499,3 +499,4 @@ if __name__ == '__main__':
     do_nerf()
     # https://github.com/NVIDIAGameWorks/kaolin-wisp/tree/main/app/nerf
     # python app/nerf/main_nerf.py --config app/nerf/configs/nerf_octree.yaml --dataset-path /path/to/lego
+    # python3 app/nerf/main_nerf.py --config app/nerf/configs/nerf_hash.yaml --dataset-path D:/Workspace/akw/avataarKW/res/dataset

@@ -17,6 +17,7 @@ You have to submit the github link of your code.
 
 ## Setup
 * Install [Kaolin Wisp](https://github.com/NVIDIAGameWorks/kaolin-wisp/blob/main/INSTALL.md#installation-steps-in-detail)
+* `pip install kaolin -f https://nvidia-kaolin.s3.us-east-2.amazonaws.com/torch-1.13.1_cu117.html`
 * Install FFMPEG
 * Install Colman
 * Make sure the paths are correct in `src/configuration.py`.

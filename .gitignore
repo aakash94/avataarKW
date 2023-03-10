@@ -127,3 +127,12 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+res/dataset/
+res/colmapdb/
+res/framebuffer_dump/
+res/videos/
+.idea/
+src/_results/
+src/colmap_nocuda/
+res/input.mp4
