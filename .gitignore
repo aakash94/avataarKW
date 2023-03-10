@@ -136,3 +136,4 @@ res/videos/
 src/_results/
 src/colmap_nocuda/
 res/input.mp4
+/src/colmap_cuda/
