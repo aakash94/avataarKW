@@ -1,3 +1,4 @@
+from glob import glob
 import numpy as np
 import torch
 from wisp.offline_renderer import OfflineRenderer
@@ -7,7 +8,10 @@ from configuration import *
 
 
 def get_run_name() -> str:
-    return "20230307-011538"
+    path = os.path.join(RUNS_LOG_PATH, '*')
+    a = glob(path)
+    recent = a[-1].split("\\")[-1]
+    return recent
 
 
 def export_gif_video(pipeline, num_angles=180, camera_distance=4):
