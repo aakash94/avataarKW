@@ -21,12 +21,24 @@ You have to submit the github link of your code.
 * Install FFMPEG
 * Install Colman
 * Make sure the paths are correct in `src/configuration.py`.
+* create a `res` folder parallel to the `src` folder.
+* follow the following folder structure, or change the paths accordingly
+```
+res/
+|____dataset/
+     |____transforms.json
+     |____images/
+|____framebuffer_dump/
+     |____rgb.gif
+|____colmandb/
+|____imput.mp4
+```
 
 ## Execution 
-* Run `src/Main.py` to generate the dataset
-* Run `python src/nerf_main.py --config src/nerf_configs/nerf_octree.yaml --dataset-path /res/dataset` to render the scene in 3d and use the tool to generate images for video
+* Run `src/Main.py` to generate the dataset, perform Nerf, and generate a video from it. 
+* `input.mp4` is the input video
+*  `rgb.gif` is the final generated output
 
 
 ## Future Work
 * Tweak hyper parameters to get better quality results
-* Simpler script to auto generate video
